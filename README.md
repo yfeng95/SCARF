@@ -31,11 +31,8 @@ The disentanglement of thebody and clothing further enables us to transfer cloth
 The key features:
 1. animate the avatar by changing body poses (including hand articulation and facial expressions),  
 2. synthesize novel views of the avatar, and  
-3. transfer clothing between avatars for virtual try-on applications.   
+3. transfer clothing between avatars for virtual try-on applications.  
 
-SCARF's hybrid modeling approach enables these capabilities.
-
-<br>
 
 ## Getting Started
 Clone the repo:
@@ -56,15 +53,15 @@ bash scripts/fetch_data.sh
 ```
 
 ## Visualization
-check training frames: 
+* check training frames: 
 ```bash
 python main_demo.py --vis_type capture --frame_id 0 
 ```
-**novel view** synthesis of given frame id: 
+* **novel view** synthesis of given frame id: 
 ```bash
 python main_demo.py --vis_type novel_view --frame_id 0 
 ```
-extract **mesh** and visualize 
+* extract **mesh** and visualize 
 ```bash
 python main_demo.py --vis_type extract_mesh --frame_id 0
 ```
@@ -73,12 +70,12 @@ You can go to our [project](https://yfeng95.github.io/scarf/) page and play with
 <img src="Doc/images/mesh.gif">
 </p>
 
-**animation**  
+* **animation**  
 ```bash 
 python main_demo.py --vis_type animate
 ```
 
-**clothing transfer**
+* **clothing transfer**
 ```bash 
 # apply clothing from other model 
 python main_demo.py --vis_type novel_view --clothing_model_path exps/snapshot/male-3-casual
@@ -89,15 +86,14 @@ python main_demo.py --vis_type novel_view --body_model_path exps/snapshot/male-3
 <img src="Doc/images/clothing_transfer.png">
 </p>
 
-
 More data and trained models can be found [here](https://nextcloud.tuebingen.mpg.de/index.php/s/3SEwJmZcfY5LnnN), you can download and put them into `./exps`.
 
 ## Training 
-training with SCARF video example
+* training with SCARF video example
 ```bash
 python main_train.py --data_cfg configs/data/mpiis/DSC_7147.yml 
 ```
-training with other videos  
+* training with other videos  
 check [here](./process_data/README.md) to **prepare data with your own videos**, then run  
 ```bash
 python main_train.py --data_cfg [data config file]  
@@ -106,6 +102,7 @@ python main_train.py --data_cfg [data config file]
 ## TODO
 - [ ] add more processed data and trained models
 - [ ] code for refining the pose of trained models
+- [ ] with instant ngp
 
 ## Citation
 ```bibtex
@@ -136,12 +133,6 @@ Here are some great resources we benefit from:
 - [PyTorch3D](https://github.com/facebookresearch/pytorch3d) for Differential Rendering
 
 Some functions are based on other repositories, we acknowledge the origin individually in each file.
-
-<br>
-
---------------
-
-<br>
 
 ## License
 
