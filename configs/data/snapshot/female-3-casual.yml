@@ -1,0 +1,17 @@
+dataset:
+    image_size: 512
+    num_workers: 1
+    white_bg: False
+    subjects: ['female-3-casual']
+    train:
+      frame_start: 1
+      frame_end: 446
+      frame_step: 4
+    val:
+      frame_start: 47
+      frame_end: 648
+      frame_step: 50
+    test:
+      frame_start: 447
+      frame_end: 648
+      frame_step: 4

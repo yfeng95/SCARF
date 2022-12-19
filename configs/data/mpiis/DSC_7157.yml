@@ -1,0 +1,16 @@
+dataset:
+    image_size: 512
+    num_workers: 1
+    white_bg: False
+    type: 'scarf'
+    path: 'exps/mpiis/DSC_7157'
+    subjects: ['DSC_7157']
+    train:
+      frame_start: 0
+      frame_end: 400
+      frame_step: 2
+    val:
+      frame_start: 1
+      frame_end: 400
+      frame_step: 60
+    
