@@ -1,0 +1,41 @@
+# to install all this requirements
+#`pip install -r requirements.txt`
+torch
+torchvision
+
+scikit-image
+opencv-python
+chumpy
+matplotlib
+loguru
+tqdm
+yacs
+wandb
+PyMCubes
+trimesh
+# for pixie
+kornia==0.4.0
+PyYAML==5.1.1
+# -- evaluation
+lpips
+torchmetrics
+ipdb
+# -- pytorch3d, if failed, go to its install page for more information
+# git+https://github.com/facebookresearch/pytorch3d.git
+# face-alignment
+# imageio
+# others
+# kornia
+# pytorch3d
+# trimesh
+# einops
+# pytorch_lightning
+# imageio-ffmpeg
+# PyMCubes
+# open3d
+# plyfile
+# 
+# nerfacc
+# packaging
+#  "git+https://github.com/facebookresearch/pytorch3d.git"
+# git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch

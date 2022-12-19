@@ -1,0 +1,46 @@
+# scarf model
+use_mesh: False
+use_nerf: True
+use_fine: True
+k_neigh: 6
+chunk: 4096
+opt_pose: True
+opt_cam: True
+use_highres_smplx: True
+
+# training
+train:
+  batch_size: 1
+  max_steps: 100000 # training longer for more details
+  lr: 5e-4
+  tex_lr: 5e-4
+  geo_lr: 5e-4
+  pose_lr: 5e-4
+  precrop_iters: 400
+  precrop_frac: 0.3
+  log_steps: 20
+  val_steps: 200
+  checkpoint_steps: 1000
+  
+dataset:
+  image_size: 512
+  num_workers: 1
+  white_bg: False
+  type: 'scarf'
+
+loss:
+  w_rgb: 1.
+  w_alpha: 0.1 
+  w_depth: 0.
+  mesh_w_rgb: 1.
+  mesh_w_mrf: 0. #0.0001
+  skin_consistency_type: verts_all_mean
+  mesh_skin_consistency: 0.001
+  mesh_w_alpha: 0.05
+  mesh_w_alpha_skin: 1.
+  mesh_inside_mask: 1. 
+  reg_offset_w: 10.
+  reg_lap_w: 2.0
+  reg_edge_w: 1.
+  reg_normal_w: 0.01
+  nerf_reg_normal_w: 0.001
