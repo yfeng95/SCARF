@@ -26,7 +26,7 @@ def train(subject_name, exp_cfg, args=None):
         cfg.output_dir = os.path.join(args.exp_dir, data_type, subject_name, 'hybrid')
         cfg.ckpt_path = os.path.join(args.exp_dir, data_type, subject_name, 'nerf', 'model.tar')
     if args.clean:
-        shutil.rmtree(os.path.join(cfg.output_dir, f'{cfg.group}/{cfg.exp_name}'), ignore_errors=True)
+        shutil.rmtree(cfg.output_dir)
     os.makedirs(os.path.join(cfg.output_dir), exist_ok=True)
     shutil.copy(data_cfg, os.path.join(cfg.output_dir, 'config.yaml'))
     shutil.copy(exp_cfg, os.path.join(cfg.output_dir, 'exp_config.yaml'))
@@ -55,8 +55,8 @@ if __name__ == '__main__':
     subject_name = data_cfg.split('/')[-1].split('.')[0]
     
     ### ------------- start training 
-    exp_cfg = 'configs/exp/stage_0_nerf.yml'        
-    train(subject_name, exp_cfg, args)
+    # exp_cfg = 'configs/exp/stage_0_nerf.yml'        
+    # train(subject_name, exp_cfg, args)
     exp_cfg = 'configs/exp/stage_1_hybrid.yml'      
     train(subject_name, exp_cfg, args)
 
