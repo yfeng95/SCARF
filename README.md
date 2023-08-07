@@ -49,7 +49,7 @@ pip install -r requirements.txt
 If you have problems when installing [pytorch3d](https://github.com/facebookresearch/pytorch3d/blob/main/INSTALL.md), please follow their instructions.  
 ### Download data 
 ```
-bash scripts/fetch_data.sh
+bash fetch_data.sh
 ```
 
 ## Visualization
@@ -91,13 +91,10 @@ More data and trained models can be found [here](https://nextcloud.tuebingen.mpg
 ## Training 
 * training with SCARF video example
 ```bash
-python main_train.py --data_cfg configs/data/mpiis/DSC_7147.yml 
+bash train.sh
 ```
 * training with other videos  
-check [here](./process_data/README.md) to **prepare data with your own videos**, then run  
-```bash
-python main_train.py --data_cfg [data config file]  
-```
+check [here](./process_data/README.md) to **prepare data with your own videos**, then change the data_cfg accordingly. 
 
 ## TODO
 - [ ] add more processed data and trained models
