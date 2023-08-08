@@ -1,0 +1,65 @@
+# scarf model
+use_fine: True
+use_mesh: True
+use_nerf: True
+lbs_map: True
+k_neigh: 6
+chunk: 4096
+opt_pose: True
+opt_cam: True
+tex_network: siren
+use_highres_smplx: True
+exclude_hand: False
+opt_mesh: True
+mesh_offset_scale: 0.04
+
+sample_patch_rays: True
+sample_patch_size: 48
+
+use_deformation: True
+deformation_dim: 3
+deformation_type: posed_verts
+
+# training
+train:
+  batch_size: 1
+  max_steps: 50000
+  lr: 1e-4
+  tex_lr: 1e-5
+  geo_lr: 1e-5
+  pose_lr: 1e-4
+  # precrop_iters: 400
+  precrop_frac: 0.3
+  log_steps: 20
+  val_steps: 500
+  checkpoint_steps: 1000
+  
+dataset:
+  image_size: 512
+  num_workers: 1
+  white_bg: False
+  type: 'scarf'
+    
+loss:
+  # nerf
+  w_rgb: 1.
+  w_patch_mrf: 0. #0005 
+  w_patch_perceptual: 0.04
+  w_alpha: 0.5 
+  w_depth: 0.
+  # mesh
+  mesh_w_rgb: 1.
+  mesh_w_alpha: 0.001
+  mesh_w_alpha_skin: 30.
+  mesh_w_mrf: 0. #0005 
+  mesh_w_perceptual: 0.04
+  reg_offset_w: 400. 
+  reg_offset_w_face: 200.
+  reg_lap_w: 0. #130.0
+  reg_edge_w: 500.0
+  use_new_edge_loss: True
+  skin_consistency_type: render_hand_mean
+  mesh_skin_consistency: 0.01
+  mesh_inside_mask: 40. 
+  nerf_reg_dxyz_w: 2.
+
