@@ -15,7 +15,7 @@ cfg.device = 'cuda:0'
 
 # load models
 cfg.ckpt_path = None
-cfg.nerf_ckpt_path = ''
+cfg.nerf_ckpt_path = 'exps/mpiis/DSC_7157/model.tar'
 cfg.mesh_ckpt_path = ''
 cfg.pose_ckpt_path = ''
 
@@ -152,6 +152,7 @@ cfg.dataset.test.frame_step = 4
 cfg.loss = CN()
 cfg.loss.w_rgb = 1.
 cfg.loss.w_patch_mrf = 0.#0005
+cfg.loss.w_patch_perceptual = 0.#0005
 cfg.loss.w_alpha = 0.
 cfg.loss.w_xyz = 1.
 cfg.loss.w_depth = 0.
@@ -161,6 +162,7 @@ cfg.loss.use_mse = False
 cfg.loss.mesh_w_rgb = 1.
 cfg.loss.mesh_w_normal = 0.1
 cfg.loss.mesh_w_mrf = 0.
+cfg.loss.mesh_w_perceptual = 0.
 cfg.loss.mesh_w_alpha = 0.
 cfg.loss.mesh_w_alpha_skin = 0.
 cfg.loss.skin_consistency_type = 'verts_all_mean'

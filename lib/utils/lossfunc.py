@@ -1,12 +1,12 @@
 import torch
 from torch import nn
+import torchvision
 import torchvision.models as models
 import torch.nn.functional as F
 from functools import reduce
 import scipy.sparse as sp
 import numpy as np
 from chumpy.utils import row, col
-
 
 def get_vert_connectivity(num_vertices, faces):
     """
@@ -285,7 +285,7 @@ class IDMRFLoss(nn.Module):
         self.lambda_content = 1.0
 
     def sum_normalize(self, featmaps):
-        reduce_sum = torch.sum(featmaps, dim=1, keepdim=True)
+        reduce_sum = torch.sum(featmaps, dim=1, keepdim=True) + 1e-5
         return featmaps / reduce_sum
 
     def patch_extraction(self, featmaps):
@@ -312,13 +312,13 @@ class IDMRFLoss(nn.Module):
     def mrf_loss(self, gen, tar):
         meanT = torch.mean(tar, 1, keepdim=True)
         gen_feats, tar_feats = gen - meanT, tar - meanT
-
+        gen_feats = gen_feats
+        tar_feats = tar_feats
         gen_feats_norm = torch.norm(gen_feats, p=2, dim=1, keepdim=True)
         tar_feats_norm = torch.norm(tar_feats, p=2, dim=1, keepdim=True)
-
-        gen_normalized = gen_feats / gen_feats_norm
-        tar_normalized = tar_feats / tar_feats_norm
-
+        gen_normalized = gen_feats / (gen_feats_norm + 1e-5)
+        tar_normalized = tar_feats / (tar_feats_norm + 1e-5)
+        
         cosine_dist_l = []
         BatchSize = tar.size(0)
 
@@ -326,7 +326,6 @@ class IDMRFLoss(nn.Module):
             tar_feat_i = tar_normalized[i:i+1, :, :, :]
             gen_feat_i = gen_normalized[i:i+1, :, :, :]
             patches_OIHW = self.patch_extraction(tar_feat_i)
-
             cosine_dist_i = F.conv2d(gen_feat_i, patches_OIHW)
             cosine_dist_l.append(cosine_dist_i)
         cosine_dist = torch.cat(cosine_dist_l, dim=0)
@@ -346,10 +345,8 @@ class IDMRFLoss(nn.Module):
         tar_vgg_feats = self.featlayer(tar)
         style_loss_list = [self.feat_style_layers[layer] * self.mrf_loss(gen_vgg_feats[layer], tar_vgg_feats[layer]) for layer in self.feat_style_layers]
         self.style_loss = reduce(lambda x, y: x+y, style_loss_list) * self.lambda_style
-
         content_loss_list = [self.feat_content_layers[layer] * self.mrf_loss(gen_vgg_feats[layer], tar_vgg_feats[layer]) for layer in self.feat_content_layers]
         self.content_loss = reduce(lambda x, y: x+y, content_loss_list) * self.lambda_content
-
         return self.style_loss + self.content_loss
 
         # loss = 0
@@ -357,3 +354,45 @@ class IDMRFLoss(nn.Module):
         #     loss += torch.mean((gen_vgg_feats[key] - tar_vgg_feats[key])**2)
         # return loss
 
+
+class VGGPerceptualLoss(torch.nn.Module):
+    def __init__(self, resize=True):
+        super(VGGPerceptualLoss, self).__init__()
+        blocks = []
+        blocks.append(torchvision.models.vgg16(pretrained=True).features[:4].eval())
+        blocks.append(torchvision.models.vgg16(pretrained=True).features[4:9].eval())
+        blocks.append(torchvision.models.vgg16(pretrained=True).features[9:16].eval())
+        blocks.append(torchvision.models.vgg16(pretrained=True).features[16:23].eval())
+        for bl in blocks:
+            for p in bl.parameters():
+                p.requires_grad = False
+        self.blocks = torch.nn.ModuleList(blocks)
+        self.transform = torch.nn.functional.interpolate
+        self.resize = resize
+        self.register_buffer("mean", torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
+        self.register_buffer("std", torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
+
+    def forward(self, input, target, feature_layers=[0, 1, 2, 3], style_layers=[]):
+        if input.shape[1] != 3:
+            input = input.repeat(1, 3, 1, 1)
+            target = target.repeat(1, 3, 1, 1)
+        input = (input-self.mean) / self.std
+        target = (target-self.mean) / self.std
+        if self.resize:
+            input = self.transform(input, mode='bilinear', size=(224, 224), align_corners=False)
+            target = self.transform(target, mode='bilinear', size=(224, 224), align_corners=False)
+        loss = 0.0
+        x = input
+        y = target
+        for i, block in enumerate(self.blocks):
+            x = block(x)
+            y = block(y)
+            if i in feature_layers:
+                loss += torch.nn.functional.l1_loss(x, y)
+            if i in style_layers:
+                act_x = x.reshape(x.shape[0], x.shape[1], -1)
+                act_y = y.reshape(y.shape[0], y.shape[1], -1)
+                gram_x = act_x @ act_x.permute(0, 2, 1)
+                gram_y = act_y @ act_y.permute(0, 2, 1)
+                loss += torch.nn.functional.l1_loss(gram_x, gram_y)
+        return loss

@@ -46,7 +46,8 @@ if __name__ == '__main__':
     parser.add_argument('--wandb_name', type=str, default = 'SCARF', help='project name')
     parser.add_argument('--exp_dir', type=str, default = './exps', help='exp dir')
     parser.add_argument('--data_cfg', type=str, default = 'configs/data/mpiis/DSC_7157.yml', help='data cfg file path')
-    parser.add_argument('--clean', action="store_true", help='delete output dir if exists')    
+    parser.add_argument('--exp_cfg', type=str, default = 'configs/exp/tage_0_nerf.yml', help='exp cfg file path')
+    parser.add_argument('--clean', action="store_true", help='delete output dir if exists, if not, the training will be resumed.')    
     args = parser.parse_args()
     # 
     #-- data setting
@@ -54,9 +55,8 @@ if __name__ == '__main__':
     data_type = data_cfg.split('/')[-2]
     subject_name = data_cfg.split('/')[-1].split('.')[0]
     
-    ### ------------- start training 
-    # exp_cfg = 'configs/exp/stage_0_nerf.yml'        
-    # train(subject_name, exp_cfg, args)
-    exp_cfg = 'configs/exp/stage_1_hybrid.yml'      
+    #-- exp setting
+    exp_cfg = args.exp_cfg
+    
+    # ### ------------- start training 
     train(subject_name, exp_cfg, args)
-

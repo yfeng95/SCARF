@@ -10,6 +10,7 @@ if __name__ == '__main__':
     from lib.utils.config import get_cfg_defaults, update_cfg
     from glob import glob
     parser = argparse.ArgumentParser()
+    parser.add_argument('--wandb_name', type=str, default = 'SCARF', help='project name')
     parser.add_argument('--vis_type', type=str, default = 'capture', help='visualizaiton type')
     parser.add_argument('--model_path', type=str, default = 'exps/mpiis/DSC_7157', help='trained model folder')
     parser.add_argument('--body_model_path', type=str, default = '', help='if specified, then will use this model for body part')
@@ -21,7 +22,7 @@ if __name__ == '__main__':
     parser.add_argument('--frame_id', type=int, default = 0, help='frame id for novel view and mesh extraction')
     parser.add_argument('--animation_file', type=str, default = 'data/pixie_radioactive.pkl', help='path for pose data')                        
     args = parser.parse_args()
-
+    
     #-- load config
     model_dir = args.model_path
     data_cfg = os.path.join(model_dir, 'config.yml')
@@ -33,8 +34,9 @@ if __name__ == '__main__':
     cfg.dataset.path = os.path.abspath(args.model_path)
     args.body_model_path = os.path.join(args.body_model_path, 'model.tar')
     args.clothing_model_path = os.path.join(args.clothing_model_path, 'model.tar')
-    
+
     # set exp  
+    cfg.wandb_name = args.wandb_name
     cfg.cfg_file = cfg_file
     cfg.model_dir = model_dir
     cfg.ckpt_path = os.path.join(model_dir, 'model.tar')

@@ -123,6 +123,9 @@ class Trainer(torch.nn.Module):
         ### loss
         if self.cfg.loss.mesh_w_mrf > 0. or self.cfg.loss.w_patch_mrf:
             self.mrf_loss = lossfunc.IDMRFLoss().to(self.device)
+        if self.cfg.loss.mesh_w_perceptual > 0. or self.cfg.loss.w_patch_perceptual:
+            self.perceptual_loss = lossfunc.VGGPerceptualLoss().to(self.device)
+            
         ### logger
         self.savefolder = self.cfg.output_dir
         logger.add(os.path.join(self.cfg.output_dir, self.cfg.train.log_dir, 'train.log'))
@@ -249,7 +252,9 @@ class Trainer(torch.nn.Module):
                     mask_patch = gt_mask[:,:patch_size**2].reshape(-1, patch_size, patch_size, 1).permute(0,3,1,2)
                     if self.cfg.loss.w_patch_mrf > 0.:
                         losses['nerf_patch_mrf'] = self.mrf_loss(rgb_patch*mask_patch, rgb_patch_gt*mask_patch)*self.cfg.loss.w_patch_mrf
-                             
+                    if self.cfg.loss.w_patch_perceptual > 0.:
+                        losses['nerf_patch_perceptual'] = self.perceptual_loss(rgb_patch*mask_patch, rgb_patch_gt*mask_patch)*self.cfg.loss.w_patch_perceptual
+            
         if self.cfg.use_mesh and self.cfg.opt_mesh:
             if self.cfg.loss.geo_reg:
                 mesh = opdict['mesh']
@@ -288,12 +293,16 @@ class Trainer(torch.nn.Module):
                     losses['mesh_skin_consistency'] = (batch['cloth_mask']*(opdict['mesh_image'] - tex[:,hand_idx].detach().mean(1)[:,:,None,None]).abs()).mean()*self.cfg.loss.mesh_skin_consistency           
                 if self.cfg.loss.mesh_w_mrf > 0.:
                     losses['mesh_image_mrf'] = self.mrf_loss(opdict['mesh_image']*batch['skin_mask'], batch['image']*batch['skin_mask'])*self.cfg.loss.mesh_w_mrf
+                if self.cfg.loss.mesh_w_perceptual > 0.:
+                    losses['mesh_image_perceptual'] = self.perceptual_loss(opdict['mesh_image']*batch['skin_mask'], batch['image']*batch['skin_mask'])*self.cfg.loss.mesh_w_perceptual
             else:
                 losses['mesh_image'] = lossfunc.huber(opdict['mesh_image'], batch['image'])*self.cfg.loss.mesh_w_rgb
                 losses['mesh_mask'] = lossfunc.huber(opdict['mesh_mask'], batch['mask'])*self.cfg.loss.mesh_w_alpha
                 if self.cfg.loss.mesh_w_mrf > 0.:
                     losses['mesh_image_mrf'] = self.mrf_loss(opdict['mesh_image'], batch['image'])*self.cfg.loss.mesh_w_mrf
-                
+                if self.cfg.loss.mesh_w_perceptual > 0.:
+                    losses['mesh_image_perceptual'] = self.perceptual_loss(opdict['mesh_image'], batch['image'])*self.cfg.loss.mesh_w_perceptual
+
         #########################################################d
         all_loss = 0.
         losses_key = losses.keys()
@@ -329,13 +338,13 @@ class Trainer(torch.nn.Module):
                 val_iter = iter(self.train_dataloader)
                 batch = next(val_iter)
             util.move_dict_to_device(batch, self.device)
-            if data == 'train':
-                batch = self.posemodel(batch)
-            else:
-                if self.cfg.use_deformation and self.cfg.deformation_type == 'opt_code':
-                    frame_id = '000000'
-                    deformation_code = getattr(self.posemodel, f'{self.posemodel.subject_id}_deformation_{frame_id}')
-                    batch['deformation_code'] = deformation_code.expand(batch['image'].shape[0], -1)
+        if data == 'train':
+            batch = self.posemodel(batch)
+        else:
+            if self.cfg.use_deformation and self.cfg.deformation_type == 'opt_code':
+                frame_id = '000000'
+                deformation_code = getattr(self.posemodel, f'{self.posemodel.subject_id}_deformation_{frame_id}')
+                batch['deformation_code'] = deformation_code.expand(batch['image'].shape[0], -1)
         # first batch to show canonical
         # if data == 'val':
         #     batch['full_pose'][:1] = self.model.canonical_pose
@@ -366,7 +375,10 @@ class Trainer(torch.nn.Module):
                 batch['cam'] = batch['init_cam']
             rendering = self.model.forward_mesh(batch, renderShape=True, background=batch['image'])
             visdict['init_pose'] = rendering['shape_image']
-        savepath = os.path.join(self.cfg.output_dir, self.cfg.train.val_vis_dir, f'{self.global_step:06}.jpg')
+        if data=='train':
+            savepath = os.path.join(self.cfg.output_dir, self.cfg.train.vis_dir, f'{self.global_step:06}.jpg')
+        else:
+            savepath = os.path.join(self.cfg.output_dir, self.cfg.train.val_vis_dir, f'{self.global_step:06}.jpg')
         grid_image = util.visualize_grid(visdict, savepath, return_gird=True, size=self.image_size)
         images = wandb.Image(grid_image[:,:,[2,1,0]], caption="validation")
         wandb.log({data: images}, step=self.global_step)

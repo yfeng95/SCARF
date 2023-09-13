@@ -19,7 +19,7 @@ train:
   precrop_iters: 400
   precrop_frac: 0.3
   log_steps: 20
-  val_steps: 200
+  val_steps: 500
   checkpoint_steps: 1000
   
 dataset:

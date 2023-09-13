@@ -23,7 +23,7 @@ deformation_type: posed_verts
 # training
 train:
   batch_size: 1
-  max_steps: 50000
+  max_steps: 50000  ## normally, 10k is enough
   lr: 1e-4
   tex_lr: 1e-5
   geo_lr: 1e-5
@@ -31,7 +31,7 @@ train:
   # precrop_iters: 400
   precrop_frac: 0.3
   log_steps: 20
-  val_steps: 200
+  val_steps: 500
   checkpoint_steps: 1000
   
 dataset:
@@ -50,8 +50,8 @@ loss:
   mesh_w_rgb: 1.
   mesh_w_alpha: 0.001
   mesh_w_alpha_skin: 30.
-  mesh_w_mrf: 0.0005 #1
-  reg_offset_w: 400. #01
+  mesh_w_mrf: 0.0005 
+  reg_offset_w: 400. 
   reg_offset_w_face: 200.
   reg_lap_w: 0. #130.0
   reg_edge_w: 500.0

@@ -50,4 +50,4 @@ data
 exps
 wandb
 process_data/assets
-process_data/submodules
+debug*
