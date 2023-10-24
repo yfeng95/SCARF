@@ -6,10 +6,11 @@ wget https://github.com/PeterL1n/RobustVideoMatting/releases/download/v1.0.0/rvm
 
 # trained model for cloth-segmentation
 # if failed, please download the model from
-# https://drive.google.com/file/d/1mhF3yqd7R-Uje092eypktNl-RoZNuiCJ/view
+# https://drive.google.com/file/d/1mhF3yqd7R-Uje092eypktNl-RoZNuiCJ/view -- not valide anymore
+# use new link: https://drive.google.com/file/d/18_ekYXKLgd0H8XOE7jMJqQrlsoyhQU67/view?usp=drive_link
 mkdir -p ./assets/cloth-segmentation
 echo -e "Downloading cloth-segmentation model..."
-FILEID=1mhF3yqd7R-Uje092eypktNl-RoZNuiCJ
+FILEID=18_ekYXKLgd0H8XOE7jMJqQrlsoyhQU67
 FILENAME=./assets/cloth-segmentation/cloth_segm_u2net_latest.pth
 wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id='${FILEID} -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O $FILENAME && rm -rf /tmp/cookies.txt
 
